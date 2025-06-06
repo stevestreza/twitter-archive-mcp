@@ -21,7 +21,7 @@ Built for exactly my need, and nothing more.
    ```
 3. Start the server with your Twitter archive ZIP:
    ```sh
-   node dist/server.js path/to/twitter-archive.zip
+   npm start -- path/to/twitter-archive.zip
    ```
 
 ## Usage
