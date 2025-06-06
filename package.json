@@ -2,6 +2,9 @@
   "name": "twitter-archive-mcp",
   "version": "1.0.0",
   "main": "dist/server.js",
+  "bin": {
+    "twitter-archive-mcp": "dist/server.js"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
