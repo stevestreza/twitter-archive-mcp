@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import StreamZip from 'node-stream-zip';
 import fs from 'fs';
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
