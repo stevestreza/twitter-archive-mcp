@@ -160,7 +160,7 @@ server.tool(
     let n = 5;
     if (sampleSize) {
       const parsed = parseInt(sampleSize, 10);
-      if (!isNaN(parsed) && parsed > 0 && parsed <= 20) n = parsed;
+      if (!isNaN(parsed) && parsed > 0) n = parsed;
     }
     const tweets = await getTweetsFromZip();
     // Sample n unique tweets
