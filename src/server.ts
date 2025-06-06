@@ -69,6 +69,18 @@ function simplifyTweet(tweet: any) {
   };
 }
 
+// Helper to replace @mentions, hashtags, and URLs with LLM-friendly tokens
+function cleanTweetText(text: string): string {
+  // Remove all leading @mentions (possibly multiple, separated by spaces)
+  let cleaned = text.replace(/^(?:@[\w_]+\s+)+/, '');
+  return cleaned
+    .replace(/https?:\/\/\S+/g, '[LINK]')      // Replace URLs
+    .replace(/@[\w_]+/g, '[USERNAME]')           // Replace @mentions
+    .replace(/#[\w_]+/g, '[HASHTAG]')            // Replace hashtags
+    .replace(/\s{2,}/g, ' ')                     // Collapse multiple spaces
+    .trim();
+}
+
 // MCP Server setup
 const server = new McpServer({
   name: 'Twitter Archive MCP',
@@ -163,14 +175,17 @@ server.tool(
       if (!isNaN(parsed) && parsed > 0) n = parsed;
     }
     const tweets = await getTweetsFromZip();
+    // Filter out retweets (only original tweets by the archive owner)
+    const originalTweets = tweets.filter(t => !t.full_text.startsWith('RT @'));
     // Sample n unique tweets
     const sample = [];
     const used = new Set();
-    while (sample.length < Math.min(n, tweets.length)) {
-      const idx = Math.floor(Math.random() * tweets.length);
+    while (sample.length < Math.min(n, originalTweets.length)) {
+      const idx = Math.floor(Math.random() * originalTweets.length);
       if (!used.has(idx)) {
         used.add(idx);
-        sample.push(tweets[idx].full_text || tweets[idx].text);
+        const rawText = originalTweets[idx].full_text || originalTweets[idx].text;
+        sample.push(cleanTweetText(rawText));
       }
     }
     return {
