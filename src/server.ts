@@ -123,9 +123,38 @@ server.resource(
   }
 );
 
+server.resource(
+  'tweet-text',
+  new ResourceTemplate('tweet-text://{id}', { list: undefined }),
+  async (uri, { id }) => {
+    const tweets = await getTweetsFromZip();
+    const tweet = tweets.find((t) => (t.id_str || t.id) === id);
+    if (!tweet) {
+      return {
+        contents: [
+          {
+            uri: uri.href,
+            text: JSON.stringify({ error: 'Tweet not found', id }),
+          },
+        ],
+      };
+    }
+    // Return just the text of the tweet
+    return {
+      contents: [
+        {
+          uri: `tweet-text://${tweet.id_str || tweet.id}`,
+          text: tweet.full_text || tweet.text,
+        },
+      ],
+    };
+  }
+);
+
 // Tool: sample_tweets (returns a random sample of tweet resource URIs)
+// Tool: sample_tweet_texts (returns a random sample of tweet texts)
 server.tool(
-  'sample_tweets',
+  'sample_tweet_texts',
   { sampleSize: z.string().optional() },
   async ({ sampleSize }) => {
     let n = 5;
@@ -141,7 +170,7 @@ server.tool(
       const idx = Math.floor(Math.random() * tweets.length);
       if (!used.has(idx)) {
         used.add(idx);
-        sample.push(`tweet://${tweets[idx].id_str || tweets[idx].id}`);
+        sample.push(tweets[idx].full_text || tweets[idx].text);
       }
     }
     return {
